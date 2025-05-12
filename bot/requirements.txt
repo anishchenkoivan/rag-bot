@@ -1,0 +1,6 @@
+python-telegram-bot
+nltk
+transformers
+sentence_transformers
+torch
+pytesserract
