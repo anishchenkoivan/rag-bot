@@ -3,3 +3,4 @@ nltk
 transformers
 sentence_transformers
 pytesseract
+pymupdf

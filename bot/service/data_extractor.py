@@ -1,5 +1,6 @@
 from pathlib import Path
 from image.image_reader import text_from_image
+from service.pdf_extractor import extract_pdf
 
 
 def extract_data(data, source: str) -> str:
@@ -13,8 +14,9 @@ def extract_data(data, source: str) -> str:
             return f.read()
     if file_ext in (".jpg", ".jpeg", ".png"):
         return text_from_image(file_path)
+    if file_ext in (".pdf",):
+        return extract_pdf(file_path)
     return ""
-    # TODO: Add proper text/image recognition from PDF
 
 
 def extract_questions(data) -> list[str]:
