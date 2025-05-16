@@ -1,11 +1,10 @@
-from pathlib import Path
-
 from telegram import Update
 from telegram.ext import ContextTypes
 import asyncio
+import os
 
-from bot.service.data_extractor import extract_data, format_question
-from bot.service.session import Session
+from service.data_extractor import *
+from service.session import Session
 
 user_sessions = {}
 
@@ -45,7 +44,7 @@ async def data_upload_handler(update: Update, context: ContextTypes.DEFAULT_TYPE
         file_name = document.file_name or "unknown"
         file_ext = Path(file_name).suffix.lower()
 
-        file_path = f"/tmp/{user_id}_{file_name}"
+        file_path = f"{os.getcwd()}/tmp/{user_id}_{file_name}"
         await file.download_to_drive(file_path)
         data = file_path
         source = file_ext
@@ -79,7 +78,7 @@ async def questions_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     session = user_sessions[user_id]
-    session.add_questions(format_question(questions))
+    session.add_questions(extract_questions(questions))
     await update.message.reply_text("Questions remembered.")
 
 
@@ -90,10 +89,15 @@ async def answer_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     session = user_sessions[user_id]
+    # Show questions asked
+    print(session.questions)
+    await update.message.reply_text(f"Questions asked: {format_questions(session.questions)}")
+
+    # Answer questions
     loop = asyncio.get_running_loop()
     result = await loop.run_in_executor(None, session.search)
 
-    await update.message.reply_text(f"Answers: {result}")
+    await update.message.reply_text(f"Answers: {format_answers(result)}")
 
 async def general_message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id

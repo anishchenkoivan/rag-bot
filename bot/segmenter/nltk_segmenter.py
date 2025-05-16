@@ -1,8 +1,7 @@
-from typing import override
 from nltk.tokenize import sent_tokenize
 import nltk
 
-from bot.segmenter.segmenter import Segmenter
+from .segmenter import Segmenter
 
 
 class NltkSegmenter(Segmenter):
@@ -10,6 +9,5 @@ class NltkSegmenter(Segmenter):
         nltk.download('punkt_tab')
         super().__init__(data)
 
-    @override
     def split(self) -> list[str]:
         return sent_tokenize(self.data)

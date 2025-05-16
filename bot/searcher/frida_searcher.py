@@ -1,15 +1,13 @@
-from typing import override
 from sentence_transformers import SentenceTransformer
 import torch
 
-from bot.searcher.searcher import Searcher
+from .searcher import Searcher
 
 
 class FridaSearcher(Searcher):
     def __init__(self, segments: list[str]):
         super().__init__(segments)
 
-    @override
     def retrieve_answers(self, questions, limit=2) -> list[str]:
         print("retrieving data")
         device = "cuda" if torch.cuda.is_available() else "cpu"

@@ -1,4 +1,4 @@
-from bot.config import default_segmenter, default_searcher
+from config import default_segmenter, default_searcher
 
 
 class Session:
@@ -7,7 +7,7 @@ class Session:
         self.searcher = default_searcher(self.segmenter.split())
         self.questions = []
 
-    def add_questions(self, questions: [str]):
+    def add_questions(self, questions: list[str]):
         self.questions.extend(questions)
 
     def search(self):

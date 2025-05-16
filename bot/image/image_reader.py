@@ -1,7 +1,7 @@
 from PIL import Image
 import pytesseract
 
-from bot import config
+import config
 
 
 def text_from_image(file_path: str) -> str:

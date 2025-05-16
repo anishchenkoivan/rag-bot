@@ -1,5 +1,5 @@
 from pathlib import Path
-from bot.image.image_reader import text_from_image
+from image.image_reader import text_from_image
 
 
 def extract_data(data, source: str) -> str:
@@ -17,10 +17,13 @@ def extract_data(data, source: str) -> str:
     # TODO: Add proper text/image recognition from PDF
 
 
-def extract_questions(data, source: str) -> [str]:
-    data = extract_data(data, source)
+def extract_questions(data) -> list[str]:
     return data.split("\n")
 
 
-def format_question(questions: str) -> [str]:
-    return questions.split("\n")
+def format_questions(questions: str) -> str:
+    return "\n" + "\n".join([f"{i + 1}. {questions[i]}" for i in range(len(questions))])
+
+
+def format_answers(answers: list[str]) -> str:
+    return "\n" + "\n".join([f"{i + 1}. {answers[i]}" for i in range(len(answers))])

@@ -2,14 +2,14 @@ from telegram.ext import (
     CommandHandler, MessageHandler,
     filters, ApplicationBuilder
 )
-from bot import config
+import config
 from handlers import handlers
 
 user_sessions = {}
 
 
 def main():
-    token = config.token
+    token = config.telegram_token
     app = ApplicationBuilder().token(token).build()
 
     app.add_handler(CommandHandler("start", handlers.start_handler))
