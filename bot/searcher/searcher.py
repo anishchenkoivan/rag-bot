@@ -4,3 +4,6 @@ class Searcher:
 
     def retrieve_answers(self, segments) -> list[str]:
         raise NotImplementedError()
+
+    def clear(self):
+        raise NotImplementedError()

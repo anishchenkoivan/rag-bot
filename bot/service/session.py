@@ -14,3 +14,6 @@ class Session:
         answers = self.searcher.retrieve_answers(self.questions)
         self.questions = []
         return answers
+
+    def clear(self):
+        self.searcher.clear()

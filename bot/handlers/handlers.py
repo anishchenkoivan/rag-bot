@@ -25,8 +25,10 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def reset_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
-    user_sessions.pop(user_id, None)
+    session = user_sessions.pop(user_id, None)
     context.user_data.clear()
+    if session is not None:
+        session.clear()
     await update.message.reply_text("Your data has been reset. Use /start to upload new data.")
 
 
