@@ -11,6 +11,8 @@ WORKDIR /bot
 # Install system dependencies (adjust if your bot needs more)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    tesseract-ocr \
+    tesseract-ocr-rus \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy dependency list and install
