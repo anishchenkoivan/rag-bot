@@ -1,6 +1,9 @@
 from sentence_transformers import SentenceTransformer
 import torch
 
+import config
+from service.api_gateway import gemini_api_call
+from service.data_extractor import format_questions, format_answers
 from .searcher import Searcher
 
 
@@ -34,4 +37,16 @@ class FridaSearcher(Searcher):
             top_segments = ";".join([self.segments[i] for i in topk_indices])
             answers.append(top_segments)
 
-        return answers # TODO: format the output in a fancy way
+        if config.SearcherConfig.UseGPT:
+            answers = self._format_answers(answers, questions)
+
+        return answers
+
+    def _format_answers(self, answers, questions):
+        prompt = '''You are given a list of questions and then a list of answer to each question. Rephrase the answer so that it answers the questions properly and stylistically. Do not hallucinate or make up any information. Return answer as a string with no other symbols. separated by newline'''
+        prompt += format_questions(questions)
+        prompt += '\n'
+        prompt += format_answers(answers)
+
+        formatted_answers = gemini_api_call([prompt])
+        return list(filter(lambda x: len(x) > 0, formatted_answers[0].split('\n')))
