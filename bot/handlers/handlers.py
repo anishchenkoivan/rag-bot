@@ -31,7 +31,7 @@ async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 /reset - сбросить данные, чтобы загрузить новые
 
-\help - помощь
+/help - помощь
 ''')
 
 
