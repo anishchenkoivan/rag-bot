@@ -20,8 +20,24 @@ async def test(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("Добро пожаловать в RAG-bot!")
+    await help_handler(update, context)
+
+
+async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text('''/upload - загрузить данные (текст в сообщении, или файл). После успешной загрузки, можно задавать вопросы. Каждая новая строка является вопросом. Вопросы можно задавать несколькими сообщениями
+
+/answer - получить ответ на заданные вопросы
+
+/reset - сбросить данные, чтобы загрузить новые
+
+\help - помощь
+''')
+
+
+async def upload_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data["expecting_data"] = True
-    await update.message.reply_text("Please send your data (text or file).")
+    await update.message.reply_text("Прикрепите данные (текст или файл)")
 
 
 async def reset_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -30,14 +46,14 @@ async def reset_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     context.user_data.clear()
     if session is not None:
         session.clear()
-    await update.message.reply_text("Your data has been reset. Use /start to upload new data.")
+    await update.message.reply_text("Данные сброшены. Используйте /upload чтобы загрузить их заново")
 
 
 async def data_upload_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
 
     if not context.user_data.get("expecting_data"):
-        await update.message.reply_text("You're already in a session. Send a task or /reset to start over.")
+        await update.message.reply_text("Для вас уже существует сессия. Задайте вопрос, или используйте /reset чтобы начать заново.")
         return
 
     if update.message.document:
@@ -56,45 +72,46 @@ async def data_upload_handler(update: Update, context: ContextTypes.DEFAULT_TYPE
         data = update.message.text
         source = "str"
     else:
-        await update.message.reply_text("Unsupported input. Please send a file or text.")
+        await update.message.reply_text("Неподдерживаемый формат.")
         return
 
     try:
         formatted_data = extract_data(data, source)
         user_sessions[user_id] = Session(formatted_data)
         context.user_data["expecting_data"] = False
-        await update.message.reply_text("Data uploaded successfully. You can now send tasks.")
+        await update.message.reply_text("Данный загружены. Можно задавать вопросы.")
     except Exception as e:
-        await update.message.reply_text(f"Error processing your file: {e}")
+        print(e)
+        await update.message.reply_text(f"Ошибка при обработке данных")
 
 
 async def questions_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
 
     if user_id not in user_sessions:
-        await update.message.reply_text("No data found. Use /start to upload data.")
+        await update.message.reply_text("Данные не найдены. Используйте /upload чтобы загрузить их.")
         return
 
     questions = update.message.text
     if not questions:
-        await update.message.reply_text("Please send a text task.")
+        await update.message.reply_text("Задайте вопрос.")
         return
 
     session = user_sessions[user_id]
     session.add_questions(extract_questions(questions))
-    await update.message.reply_text("Questions remembered.")
+    await update.message.reply_text("Вопрос сохранен.")
 
 
 async def answer_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     if user_id not in user_sessions:
-        await update.message.reply_text("No data found. Use /start to upload data.")
+        await update.message.reply_text("Данные не найдены. Используйте /upload чтобы загрузить их.")
         return
 
     session = user_sessions[user_id]
     # Show questions asked
     print(f"{datetime.now()} User: {update.effective_user.username} Questions asked: {session.questions}")
-    await update.message.reply_text(f"Questions asked: {format_questions(session.questions)}")
+    await update.message.reply_text(f"Вопросы: {format_questions(session.questions)}")
 
     # Answer questions
     loop = asyncio.get_running_loop()
@@ -102,7 +119,7 @@ async def answer_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     answers = format_answers(result)
     print(f"{datetime.now()} User: {update.effective_user.username} Answers: {result}")
-    await update.message.reply_text(f"Answers: {answers}")
+    await update.message.reply_text(f"Ответы: {answers}")
 
 async def general_message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
@@ -112,4 +129,4 @@ async def general_message_handler(update: Update, context: ContextTypes.DEFAULT_
     elif user_id in user_sessions:
         await questions_handler(update, context)
     else:
-        await update.message.reply_text("Please use /start to upload data first.")
+        await update.message.reply_text("Используйте /upload чтобы загрузить данные")
