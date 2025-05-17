@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sentence_transformers import SentenceTransformer
 import torch
 import gc
@@ -31,7 +33,8 @@ class FridaSearcher(Searcher):
             top_segments = ";".join([self.segments[i] for i in topk_indices])
             answers.append(top_segments)
 
-        if config.SearcherConfig.UseGPT:
+        print(f"{datetime.now()} Response from Frida: {answers}")
+        if config.SearcherConfig.UseGPT and answers:
             answers = self._format_answers(answers, questions)
 
         return answers
@@ -42,10 +45,10 @@ class FridaSearcher(Searcher):
         torch.cuda.empty_cache()
 
     def _format_answers(self, answers, questions):
-        prompt = '''You are given a list of questions and then a list of answer to each question. Rephrase the answer so that it answers the questions properly and stylistically. Do not hallucinate or make up any information. Return answer as a string with no other symbols. separated by newline'''
+        prompt = '''You are given a list of questions and then a list of answer to each question. Rephrase the answer so that it answers the questions properly and stylistically. Do not hallucinate or make up any information. Retain as much relevant information from original text as possible without breaking the context. Return answer as a string with no other symbols. Give an answer to each question. Separate answers to different questions with ||. If you only get one question, do not include || in the result'''
         prompt += format_questions(questions)
         prompt += '\n'
         prompt += format_answers(answers)
 
         formatted_answers = gemini_api_call([prompt])
-        return list(filter(lambda x: len(x) > 0, formatted_answers[0].split('\n')))
+        return list(filter(lambda x: x.strip(), formatted_answers[0].split('||')))

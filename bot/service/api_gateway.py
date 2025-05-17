@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import requests
 import json
 
@@ -21,5 +23,5 @@ def gemini_api_call(prompts):
         )
         content = response.json().get("choices", [{}])[0].get("message", {}).get("content", "")
         results.append(content)
-    print(results)
+    print(f"{datetime.now()} Response from GPT: {results}")
     return results

@@ -1,3 +1,4 @@
+import logging
 import os
 
 from searcher.frida_searcher import FridaSearcher

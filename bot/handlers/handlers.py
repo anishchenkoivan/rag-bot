@@ -1,3 +1,4 @@
+from datetime import datetime
 from telegram import Update
 from telegram.ext import ContextTypes
 import asyncio
@@ -92,14 +93,16 @@ async def answer_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     session = user_sessions[user_id]
     # Show questions asked
-    print(session.questions)
+    print(f"{datetime.now()} User: {update.effective_user.username} Questions asked: {session.questions}")
     await update.message.reply_text(f"Questions asked: {format_questions(session.questions)}")
 
     # Answer questions
     loop = asyncio.get_running_loop()
     result = await loop.run_in_executor(None, session.search)
 
-    await update.message.reply_text(f"Answers: {format_answers(result)}")
+    answers = format_answers(result)
+    print(f"{datetime.now()} User: {update.effective_user.username} Answers: {result}")
+    await update.message.reply_text(f"Answers: {answers}")
 
 async def general_message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id

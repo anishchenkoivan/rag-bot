@@ -4,6 +4,7 @@ from telegram.ext import (
 )
 import config
 from handlers import handlers
+from setup.setup import setup
 
 user_sessions = {}
 
@@ -21,4 +22,5 @@ def main():
     app.run_polling()
 
 if __name__ == "__main__":
+    setup()
     main()
