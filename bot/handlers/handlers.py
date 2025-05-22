@@ -79,7 +79,7 @@ async def data_upload_handler(update: Update, context: ContextTypes.DEFAULT_TYPE
         formatted_data = extract_data(data, source)
         user_sessions[user_id] = Session(formatted_data)
         context.user_data["expecting_data"] = False
-        await update.message.reply_text("Данный загружены. Можно задавать вопросы.")
+        await update.message.reply_text("Данные загружены. Можно задавать вопросы.")
     except Exception as e:
         print(e)
         await update.message.reply_text(f"Ошибка при обработке данных")
